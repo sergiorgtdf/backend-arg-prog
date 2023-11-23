@@ -1,0 +1,12 @@
+{
+    "name": "backend-proy-arg-prog",
+    "version": "1.0.0",
+    "description": "Proyecto final Tramo III Argentina Programa",
+    "main": "index.js",
+    "scripts": {
+        "dev": "nodemon ",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Sergio D. Olmedo",
+    "license": "ISC"
+}
