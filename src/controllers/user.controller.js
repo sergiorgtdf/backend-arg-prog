@@ -1,22 +1,23 @@
-import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
-import { settingDotEnvSecret } from "../config/config.js";
 import User from "../models/user.model.js";
 import Role from "../models/role.model.js";
+import { createAccessToken } from "../middlewares/jwt.validator.js";
 
 // -------------------------User--------------------------
 export const createUser = async (req, res) => {
     try {
         const { username, email, password, roles } = req.body;
 
-        //const rolesFound = await Role.find({ name: { $in: roles } });
+        const passwordHash = await bcrypt.hash(password, 10);
 
         const newUser = new User({
             username,
             email,
-            password: await User.encryptPassword(password),
+            password: passwordHash,
         });
 
+        // Si se envian roles, los buscamos en la DB y los asignamos al nuevo usuario
         if (roles) {
             const foundRoles = await Role.find({ name: { $in: roles } });
             newUser.roles = foundRoles.map((role) => role._id);
@@ -27,16 +28,17 @@ export const createUser = async (req, res) => {
 
         const savedUser = await newUser.save();
 
-        const token = jwt.sign({ id: savedUser._id }, settingDotEnvSecret, {
-            expiresIn: "1d ", // 24 hours
-        });
-
+        // Crea el token
+        const token = await createAccessToken({ id: savedUser._id });
+        // Envia el token
+        res.cookie("token", token);
         res.status(200).json({
             message: "Successfully registered user!",
             token,
         });
     } catch (error) {
-        console.error(error);
+        res.status(500).json({ message: "Error registering user", error });
+        // console.error(error);
     }
 };
 
@@ -87,36 +89,51 @@ export const updateUserById = async (req, res) => {
     }
 };
 
-export const signin = async (req, res) => {
-    const { username, password } = req.body;
+export const login = async (req, res) => {
+    const { email, password } = req.body;
     try {
-        const foundUser = await User.findOne({ username });
+        const foundUser = await User.findOne({ email });
 
         // Buscamos user en la DB
         if (!foundUser)
             return res.status(400).json({ message: "User not found" });
 
         // Comparamos password
-        const matchPassword = await User.comparePassword(
+        const matchPassword = await bcrypt.compare(
             password,
             foundUser.password
         );
 
-        if (!matchPassword) {
+        if (!matchPassword)
             return res
                 .status(401)
                 .json({ token: null, message: "Invalid password" });
-        } else {
-            const token = jwt.sign(
-                { id: foundUser._id },
-                settingDotEnvSecret().secret,
-                {
-                    expiresIn: "1d", // 24 hours
-                }
-            );
-        }
+
+        // Crea el token
+        const token = await createAccessToken({ id: foundUser._id });
+        res.cookie("token", token);
+        res.status(200).json({
+            message: "Successfully logged in!",
+        });
     } catch (error) {
-        return res.status(400).json({ message: "Login failed" });
+        return res.status(500).json({ message: "Login failed", error });
+    }
+};
+
+export const logout = async (req, res) => {
+    res.cookie("token", "", { expires: new Date(0) });
+    return res.status(200).json({ message: "Logout successfully" });
+};
+
+export const profile = async (req, res) => {
+    try {
+        const userFound = await User.findById(req.userId).populate("roles");
+        if (!userFound)
+            return res.status(404).json({ message: "User not found" });
+        res.status(200).json(userFound);
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving user" });
+        console.error(error);
     }
 };
 

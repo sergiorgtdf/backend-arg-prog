@@ -8,6 +8,7 @@ import helmet from "helmet";
 import { createRoles } from "./config/initial.setup.js";
 
 import { connectMongo } from "./database/db.js";
+import userRoutes from "./routes/user.routes.js";
 
 export const server = express();
 
@@ -24,4 +25,5 @@ server.use(express.urlencoded({ extended: true }));
 server.use(cookieParser());
 server.use(cors());
 
+server.use("/api/", userRoutes);
 // ---------------------------------USE------------------------------
