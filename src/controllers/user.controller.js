@@ -8,6 +8,9 @@ import { createAccessToken } from "../middlewares/jwt.validator.js";
 export const createUser = async (req, res) => {
     try {
         const { username, email, password, roles } = req.body;
+        // Validar Usuario
+        const userFound = await User.findOne({ email });
+        if (userFound) return res.status(400).json(["User already exists"]);
 
         const passwordHash = await bcrypt.hash(password, 10);
 
@@ -37,7 +40,8 @@ export const createUser = async (req, res) => {
             token,
         });
     } catch (error) {
-        res.status(500).json({ message: "Error registering user", error });
+        // res.status(500).json({ message: "Error registering user", error });
+        res.status(500).json([error.message]);
         // console.error(error);
     }
 };
@@ -47,7 +51,7 @@ export const getUsers = async (req, res) => {
         const users = await User.find();
         res.status(200).json(users);
     } catch (error) {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json(["User not found"]);
         console.error(error);
     }
 };
@@ -57,7 +61,7 @@ export const getUserById = async (req, res) => {
         const user = await User.findById(req.params.userId);
         res.status(200).json(user);
     } catch (error) {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json(["User not found"]);
         console.error(error);
     }
 };
@@ -68,8 +72,8 @@ export const deleteUserById = async (req, res) => {
         await User.findByIdAndDelete(userId);
         res.status(204).json();
     } catch (error) {
-        res.status(404).json({ message: "User not found" });
-        console.error(error);
+        res.status(404).json(["User not found"]);
+        // console.error(error);
     }
 };
 
@@ -84,7 +88,7 @@ export const updateUserById = async (req, res) => {
         );
         res.status(200).json(updatedUser);
     } catch (error) {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json(["User not found"]);
         console.error(error);
     }
 };
@@ -95,8 +99,7 @@ export const login = async (req, res) => {
         const foundUser = await User.findOne({ email });
 
         // Buscamos user en la DB
-        if (!foundUser)
-            return res.status(400).json({ message: "User not found" });
+        if (!foundUser) return res.status(400).json(["User not found"]);
 
         // Comparamos password
         const matchPassword = await bcrypt.compare(
@@ -112,9 +115,7 @@ export const login = async (req, res) => {
         // Crea el token
         const token = await createAccessToken({ id: foundUser._id });
         res.cookie("token", token);
-        res.status(200).json({
-            message: "Successfully logged in!",
-        });
+        res.status(200).json(["Successfully logged in!"]);
     } catch (error) {
         return res.status(500).json({ message: "Login failed", error });
     }
@@ -127,10 +128,12 @@ export const logout = async (req, res) => {
 
 export const profile = async (req, res) => {
     try {
-        const userFound = await User.findById(req.userId).populate("roles");
+        // console.log(req.headers.cookie);
+        const userFound = await User.findById(req.user.id).populate("roles");
+        // const userFound = await User.findById(req.user.id);
         if (!userFound)
             return res.status(404).json({ message: "User not found" });
-        res.status(200).json(userFound);
+        res.status(200).json({ message: "Profile", userFound });
     } catch (error) {
         res.status(500).json({ message: "Error retrieving user" });
         console.error(error);

@@ -9,6 +9,7 @@ import { createRoles } from "./config/initial.setup.js";
 
 import { connectMongo } from "./database/db.js";
 import userRoutes from "./routes/user.routes.js";
+import taskRoutes from "./routes/task.routes.js";
 
 export const server = express();
 
@@ -19,11 +20,13 @@ createRoles();
 
 // ---------------------------------USE------------------------------
 server.use(helmet());
-server.use(morgan("dev"));
+server.use(cors());
+
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(cookieParser());
-server.use(cors());
+server.use(morgan("tiny"));
 
 server.use("/api/", userRoutes);
+server.use("/api/", taskRoutes);
 // ---------------------------------USE------------------------------
