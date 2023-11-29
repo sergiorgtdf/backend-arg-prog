@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { taskValidationRules } from "../middlewares/task.validations.js";
 import {
     createTask,
     getAllTask,
@@ -15,9 +16,9 @@ taskRoutes.get("/task", authRequired, getAllTask);
 
 taskRoutes.get("/task/:id", authRequired, getTaskById);
 
-taskRoutes.post("/task", authRequired, createTask);
+taskRoutes.post("/task", authRequired, taskValidationRules, createTask);
 
-taskRoutes.put("/task/:id", authRequired, updateTask);
+taskRoutes.put("/task/:id", authRequired, taskValidationRules, updateTask);
 
 taskRoutes.delete("/task/:id", authRequired, deleteTask);
 

@@ -29,11 +29,14 @@ export const getTaskById = async (req, res) => {
 
 // TODO: OK
 export const createTask = async (req, res) => {
-    const { title, description } = req.body;
+    const { title, description, completed, date } = req.body;
+    console.log("Guardando tarea...");
     try {
         const newTask = new Task({
             title,
             description,
+            completed,
+            date,
             userId: req.user.id,
         });
 
@@ -71,8 +74,9 @@ export const updateTask = async (req, res) => {
 
 // TODO: ok
 export const deleteTask = async (req, res) => {
+    const { id } = req.params;
     try {
-        const taskDeleted = await Task.findByIdAndDelete(req.params.id);
+        const taskDeleted = await Task.findByIdAndDelete(id);
         if (!taskDeleted)
             return res.status(404).json({ message: "Task not found" });
         res.status(200).json({ message: "Task deleted successfully" });

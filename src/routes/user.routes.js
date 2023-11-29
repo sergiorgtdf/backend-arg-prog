@@ -4,6 +4,7 @@ import {
     login,
     logout,
     profile,
+    verifyToken,
 } from "../controllers/user.controller.js";
 
 import {
@@ -27,5 +28,8 @@ userRoutes.post("/logout", logout);
 
 // Route to get profile user
 userRoutes.get("/profile", authRequired, profile);
+
+// Pedido del token del usuario, verificando que el token sea válido
+userRoutes.get("/verifyToken", verifyToken);
 
 export default userRoutes;

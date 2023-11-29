@@ -1,7 +1,10 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
+import { settingDotEnvSecret } from "../config/config.js";
 import User from "../models/user.model.js";
 import Role from "../models/role.model.js";
+
 import { createAccessToken } from "../middlewares/jwt.validator.js";
 
 // -------------------------User--------------------------
@@ -93,6 +96,33 @@ export const updateUserById = async (req, res) => {
     }
 };
 
+// verifica el token que elvia el frontend
+const { secret } = settingDotEnvSecret();
+export const verifyToken = async (req, res) => {
+    try {
+        //recibe el cookie del frontend
+        const { token } = req.cookies;
+        // verifica que venga un token
+        if (!token) return res.status(401).json(["Unauthorized"]);
+        // verifica el token
+        const decoded = jwt.verify(token, secret);
+        if (!decoded) return res.status(401).json(["Unauthorized"]);
+        // verifica que el usuario exista en la DB
+        const user = await User.findById(decoded.id);
+        if (!user) return res.status(401).json(["Unauthorized"]);
+        // si todo esta bien, envia el usuario
+        res.status(200).json({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            avatarUrl: user.avatarUrl,
+            roles: user.roles,
+        });
+    } catch (error) {
+        res.status(500).json(["Unauthorized"]);
+    }
+};
+
 export const login = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -107,17 +137,14 @@ export const login = async (req, res) => {
             foundUser.password
         );
 
-        if (!matchPassword)
-            return res
-                .status(401)
-                .json({ token: null, message: "Invalid password" });
+        if (!matchPassword) return res.status(401).json(["Invalid password"]);
 
         // Crea el token
         const token = await createAccessToken({ id: foundUser._id });
         res.cookie("token", token);
         res.status(200).json(["Successfully logged in!"]);
     } catch (error) {
-        return res.status(500).json({ message: "Login failed", error });
+        return res.status(500).json(["Login failed"]);
     }
 };
 
