@@ -4,8 +4,10 @@ import Post from "../models/post.model.js";
 // GET ALL POSTS - ok
 export const getPosts = async (req, res) => {
     try {
-        const posts = await Post.find();
-        res.status(200).json(posts).populate("autor");
+        const allPosts = await Post.find({
+            // user: req.user.id,
+        });
+        res.status(200).json(allPosts);
     } catch (error) {
         res.status(404).json(["Post not found"]);
         console.error(error);

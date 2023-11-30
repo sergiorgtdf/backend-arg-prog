@@ -20,7 +20,7 @@ createRoles();
 // -------------------------------CONNECT DB------------------------------
 
 // ---------------------------------USE------------------------------
-server.use(helmet());
+// server.use(helmet());
 server.use(
     cors({
         origin: "http://localhost:5173",

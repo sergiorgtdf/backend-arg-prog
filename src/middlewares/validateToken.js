@@ -4,7 +4,7 @@ import { settingDotEnvSecret } from "../config/config.js";
 const { secret } = settingDotEnvSecret();
 
 export const authRequired = (req, res, next) => {
-    //   console.log(req.headers.cookie);
+    // console.log(req.cookies);
 
     const { token } = req.cookies;
     //   console.log(token);

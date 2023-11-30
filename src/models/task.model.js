@@ -4,21 +4,24 @@ const taskSchema = new Schema(
     {
         title: {
             type: String,
-            require: true,
+            required: true,
         },
-
         description: {
             type: String,
-            require: true,
+            required: true,
         },
         completed: {
             type: Boolean,
-            default: false,
+            required: true,
         },
-        userId: {
-            ref: "User",
+        date: {
+            type: Date,
+            default: Date.now,
+        },
+        user: {
             type: Schema.Types.ObjectId,
-            require: true,
+            ref: "User",
+            required: true,
         },
     },
     {

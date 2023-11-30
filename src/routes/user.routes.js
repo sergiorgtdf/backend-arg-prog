@@ -18,10 +18,10 @@ import { authRequired } from "../middlewares/validateToken.js";
 const userRoutes = Router();
 
 // Route to register new users
-userRoutes.post("/signup", userValidationRules, errorHandle, createUser);
+userRoutes.post("/register", userValidationRules, errorHandle, createUser);
 
 // Rout to login users
-userRoutes.post("/signin", loginValidationRules, errorHandle, login);
+userRoutes.post("/login", loginValidationRules, errorHandle, login);
 
 // Route to logout users
 userRoutes.post("/logout", logout);

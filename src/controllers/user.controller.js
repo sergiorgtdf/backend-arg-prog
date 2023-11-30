@@ -126,9 +126,9 @@ export const verifyToken = async (req, res) => {
 export const login = async (req, res) => {
     const { email, password } = req.body;
     try {
+        // Buscamos user en la DB
         const foundUser = await User.findOne({ email });
 
-        // Buscamos user en la DB
         if (!foundUser) return res.status(400).json(["User not found"]);
 
         // Comparamos password
@@ -142,7 +142,13 @@ export const login = async (req, res) => {
         // Crea el token
         const token = await createAccessToken({ id: foundUser._id });
         res.cookie("token", token);
-        res.status(200).json(["Successfully logged in!"]);
+        console.log(token);
+
+        res.status(200).json({
+            message: "Successfully logged in!",
+            username: foundUser.username,
+            token,
+        });
     } catch (error) {
         return res.status(500).json(["Login failed"]);
     }

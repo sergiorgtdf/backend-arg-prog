@@ -1,19 +1,20 @@
 import Task from "../models/task.model.js";
 
 // TODO: OK
-export const getAllTask = async (req, res) => {
+export const getAllTasks = async (req, res) => {
     try {
-        const allTask = await Task.find({
-            userId: req.user.id,
-        }).populate("userId");
-        res.status(200).json(allTask);
+        const allTasks = await Task.find({
+            user: req.user.id,
+        }).populate("user"); //todo: falta filtrar por usuario
+
+        res.status(200).json(allTasks);
     } catch (error) {
         console.log(error.message);
-        res.status(400).json({ message: error.message });
+        res.status(400).json(error.message);
     }
 };
 
-// TODO: ok - el bug es que si se pone un id, trae las tareas de otra persona
+// TODO: ok
 export const getTaskById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -37,7 +38,7 @@ export const createTask = async (req, res) => {
             description,
             completed,
             date,
-            userId: req.user.id,
+            user: req.user.id,
         });
 
         const taskSaved = await newTask.save();
@@ -58,14 +59,11 @@ export const updateTask = async (req, res) => {
             {
                 new: true,
             }
-        ).populate("userId");
+        ).populate("user");
         if (!updatedTask)
-            return res.status(404).json({ message: "Task not found" });
+            return res.status(404).json({ message: "Tarea no encontrada" });
 
-        res.status(200).json({
-            message: "Task updated successfully",
-            updatedTask,
-        });
+        res.status(200).json(updatedTask);
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: error.message });

@@ -15,16 +15,16 @@ import { authRequired } from "../middlewares/validateToken.js";
 const postRoutes = Router();
 
 // GET ALL POSTS
-postRoutes.get("/post", getPosts);
+postRoutes.get("/posts", getPosts);
 // GET ONE POST
-postRoutes.get("/post/:id", getPost);
+postRoutes.get("/posts/:id", getPost);
 // GET ALL POSTS BY USER
-postRoutes.get("/mypost", getPostsByUser);
+postRoutes.get("/myposts", getPostsByUser);
 // CREATE POST
-postRoutes.post("/post", authRequired, postValidationRules, createPost);
+postRoutes.post("/posts", authRequired, postValidationRules, createPost);
 // UPDATE POST
-postRoutes.put("/post/:id", authRequired, updatedPost);
+postRoutes.put("/posts/:id", authRequired, updatedPost);
 // DELETE POST
-postRoutes.delete("/post/:id", authRequired, deletePost);
+postRoutes.delete("/posts/:id", authRequired, deletePost);
 
 export default postRoutes;
